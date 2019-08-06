@@ -29,7 +29,7 @@ AS
 	SELECT * 
 	INTO #LoanApplicantCDC  
 	FROM cdc.fn_cdc_get_all_changes_dbo_LoanApplicant(
-	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Applicant'))
+	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_LoanApplicant'))
 	, @MaxLSN, N'all');  
 
 
@@ -37,7 +37,7 @@ AS
 	SELECT * 
 	INTO #PropertyCDC  
 	FROM cdc.fn_cdc_get_all_changes_dbo_Property(
-	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Applicant'))
+	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Property'))
 	, @MaxLSN, N'all');  
 
 
