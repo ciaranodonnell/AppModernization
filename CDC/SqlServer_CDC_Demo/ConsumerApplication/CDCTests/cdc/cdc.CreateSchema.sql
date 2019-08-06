@@ -1,1 +1,1 @@
-﻿create schema CDC
+﻿create schema cdc

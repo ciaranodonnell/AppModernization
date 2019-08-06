@@ -9,6 +9,7 @@ namespace CDC.Loan
 
         public DateTimeOffset EventDateTime { get; set; }
 
+        public string CorrelationId { get; set; }
 
     }
 }

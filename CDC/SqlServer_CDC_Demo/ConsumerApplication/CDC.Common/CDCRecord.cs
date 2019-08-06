@@ -30,6 +30,7 @@ namespace CDCOutboxSender
 
 
             this.StartLSN = (byte[])reader.GetValue(reader.GetOrdinal(StartLSNFieldName));
+            this.LSNString = Convert.ToBase64String(this.StartLSN);
             this.Operation = (CDCOperation)reader.GetInt32(reader.GetOrdinal(OperationFieldName));
             this.UpdateMask = (byte[])reader.GetValue(reader.GetOrdinal(UpdateMaskFieldName));
 
@@ -53,6 +54,7 @@ namespace CDCOutboxSender
             return default(T);
         }
 
+        public string LSNString { get; internal set; }
         public byte[] StartLSN { get; private set; }
         public CDCOperation Operation { get; private set; }
         public byte[] UpdateMask { get; private set; }

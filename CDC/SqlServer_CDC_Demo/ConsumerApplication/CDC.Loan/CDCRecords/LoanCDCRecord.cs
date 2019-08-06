@@ -27,5 +27,6 @@ namespace CDC.Loan
         public int PropertyId { get; private set; }
         public int AmountInPennies { get; private set; }
         public DateTime RequestedCloseDate { get; private set; }
+        
     }
 }
