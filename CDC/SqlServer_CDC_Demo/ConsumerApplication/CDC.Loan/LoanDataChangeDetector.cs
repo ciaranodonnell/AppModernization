@@ -145,6 +145,12 @@ namespace CDC.Loan
             }
         }
 
+        /// <summary>
+        /// Function to hide the details about running an SP
+        /// </summary>
+        /// <param name="procedureName">the name of the SP to run</param>
+        /// <param name="connectionString">a connection string to the SQL Server database</param>
+        /// <param name="loadDataAction">a function to call that will extract the data from the reader. The data items will likely be in a closure for this to work</param>
         private void RunStoredProcedure(string procedureName, string connectionString, Action<IDataReader> loadDataAction)
         {
             try
@@ -154,6 +160,7 @@ namespace CDC.Loan
                 {
                     command.CommandText = procedureName;
                     command.CommandType = CommandType.StoredProcedure;
+                    connection.Open();
                     var reader = command.ExecuteReader();
 
                     loadDataAction(reader);
