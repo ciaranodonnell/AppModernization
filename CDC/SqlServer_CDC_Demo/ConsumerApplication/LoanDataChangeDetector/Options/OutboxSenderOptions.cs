@@ -8,11 +8,13 @@ namespace CDCOutboxSender.Options
     public class OutboxSenderOptions
     {
 
-        [Option]
+        [Option('d', "db", Required = true)]
         public string DatabaseConnectionString { get; set; }
 
-
+        [Option('p', "pollInterval", Required = false, Default = 10, HelpText = "The amount of time between checks for changes")]
         public int PollIntervalSeconds { get; set; } = 10;
+
+
 
     }
 }

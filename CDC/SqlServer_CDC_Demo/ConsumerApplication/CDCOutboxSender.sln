@@ -5,7 +5,11 @@ VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "CDCTests", "CDCTests\CDCTests.sqlproj", "{7A451039-2ACB-4699-BA38-947C7B8BD61A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoanDataChangeDetector", "LoanDataChangeDetector\LoanDataChangeDetector.csproj", "{A2EE5132-1CFD-4C32-BBE1-410A0DA390BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDC.Loan.DataChangeDetector", "LoanDataChangeDetector\CDC.Loan.DataChangeDetector.csproj", "{A2EE5132-1CFD-4C32-BBE1-410A0DA390BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDC.Loan", "CDC.Loan\CDC.Loan.csproj", "{833D7815-255C-4077-85F1-4A04490A975B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDC.Common", "CDC.Common\CDC.Common.csproj", "{5ED5484A-830F-4DE2-B71E-4CED337BB91E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +27,14 @@ Global
 		{A2EE5132-1CFD-4C32-BBE1-410A0DA390BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2EE5132-1CFD-4C32-BBE1-410A0DA390BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2EE5132-1CFD-4C32-BBE1-410A0DA390BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{833D7815-255C-4077-85F1-4A04490A975B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{833D7815-255C-4077-85F1-4A04490A975B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{833D7815-255C-4077-85F1-4A04490A975B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{833D7815-255C-4077-85F1-4A04490A975B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ED5484A-830F-4DE2-B71E-4CED337BB91E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ED5484A-830F-4DE2-B71E-4CED337BB91E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ED5484A-830F-4DE2-B71E-4CED337BB91E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ED5484A-830F-4DE2-B71E-4CED337BB91E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

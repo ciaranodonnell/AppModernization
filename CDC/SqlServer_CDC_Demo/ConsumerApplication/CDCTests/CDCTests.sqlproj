@@ -75,4 +75,10 @@
   <ItemGroup>
     <Build Include="cdc\cdc.CreateSchema.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="CDCTests.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cdc\cdc.EnableCDCOnTables.sql" />
+  </ItemGroup>
 </Project>
