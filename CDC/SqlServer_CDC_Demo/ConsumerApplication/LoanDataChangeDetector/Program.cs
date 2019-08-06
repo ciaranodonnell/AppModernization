@@ -1,9 +1,7 @@
-﻿using CDCOutboxSender.Options;
+﻿using CDC.Loan;
+using CDCOutboxSender.Options;
 using CommandLine;
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Diagnostics;
 
 namespace CDCOutboxSender
 {
@@ -16,15 +14,13 @@ namespace CDCOutboxSender
             {
                 Console.WriteLine("Starting...");
 
+                var loanDataChangeProcessor = new LoanDataChangeProcessor(options.DatabaseConnectionString, options.PollIntervalSeconds);
 
-
-
+                loanDataChangeProcessor.Start();
 
                 Console.WriteLine("Running!");
 
                 Console.ReadLine();
-
-
 
             });
 

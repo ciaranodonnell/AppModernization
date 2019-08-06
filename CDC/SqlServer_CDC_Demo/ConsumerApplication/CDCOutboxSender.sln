@@ -7,9 +7,15 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "CDCTests", "CDCTests\CDCTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDC.Loan.DataChangeDetector", "LoanDataChangeDetector\CDC.Loan.DataChangeDetector.csproj", "{A2EE5132-1CFD-4C32-BBE1-410A0DA390BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDC.Loan", "CDC.Loan\CDC.Loan.csproj", "{833D7815-255C-4077-85F1-4A04490A975B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDC.Loan", "CDC.Loan\CDC.Loan.csproj", "{833D7815-255C-4077-85F1-4A04490A975B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDC.Common", "CDC.Common\CDC.Common.csproj", "{5ED5484A-830F-4DE2-B71E-4CED337BB91E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDC.Common", "CDC.Common\CDC.Common.csproj", "{5ED5484A-830F-4DE2-B71E-4CED337BB91E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messaging", "Messaging", "{3F3C1A92-1999-41D6-8149-F679CF5CE306}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDC.Messaging.Core", "CDC.Messaging.Core\CDC.Messaging.Core.csproj", "{3FF729D0-A4EB-44B7-8939-72EB507398E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDC.Messaging.Kafka", "CDC.Messaging.Kafka\CDC.Messaging.Kafka.csproj", "{426D6252-6FE2-4E7F-B789-7AE03C6B8507}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,9 +41,21 @@ Global
 		{5ED5484A-830F-4DE2-B71E-4CED337BB91E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5ED5484A-830F-4DE2-B71E-4CED337BB91E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5ED5484A-830F-4DE2-B71E-4CED337BB91E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FF729D0-A4EB-44B7-8939-72EB507398E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FF729D0-A4EB-44B7-8939-72EB507398E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FF729D0-A4EB-44B7-8939-72EB507398E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FF729D0-A4EB-44B7-8939-72EB507398E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{426D6252-6FE2-4E7F-B789-7AE03C6B8507}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{426D6252-6FE2-4E7F-B789-7AE03C6B8507}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{426D6252-6FE2-4E7F-B789-7AE03C6B8507}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{426D6252-6FE2-4E7F-B789-7AE03C6B8507}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3FF729D0-A4EB-44B7-8939-72EB507398E7} = {3F3C1A92-1999-41D6-8149-F679CF5CE306}
+		{426D6252-6FE2-4E7F-B789-7AE03C6B8507} = {3F3C1A92-1999-41D6-8149-F679CF5CE306}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FA758E8D-75F6-4C32-AA8A-C8CCCA599616}

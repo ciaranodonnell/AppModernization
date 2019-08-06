@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
-using System.Collections;
 
 namespace CDCOutboxSender
 {
@@ -46,7 +42,7 @@ namespace CDCOutboxSender
             for (int x = 0; x < schema.Rows.Count; x++)
             {
                 DataRow row = schema.Rows[x];
-                if (string.CompareOrdinal(row["ColumnName"].ToString(), SeqValFieldName) == 0)
+                if (string.CompareOrdinal(row["ColumnName"].ToString(), column) == 0)
                 {
                     return (T)reader.GetValue(x);
                 }

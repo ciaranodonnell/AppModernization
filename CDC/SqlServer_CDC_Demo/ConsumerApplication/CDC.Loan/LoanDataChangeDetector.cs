@@ -3,7 +3,6 @@ using CDCOutboxSender;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Threading;
 
 namespace CDC.Loan
@@ -14,6 +13,9 @@ namespace CDC.Loan
         private Timer timer;
         private object processingLockObject = new Object();
 
+        public event EventHandler<LoanPublishEventArgs<LoanDeletedEvent>> PublishLoanDeletedEvent;
+        public event EventHandler<LoanPublishEventArgs<LoanUpsertEvent>> PublishLoanUpsertEvent;
+
         public LoanDataChangeDetector(string connectionString, int pollIntervalInSeconds = 10)
         {
             this.PollIntervalInSeconds = pollIntervalInSeconds;
@@ -21,9 +23,8 @@ namespace CDC.Loan
         }
 
         public int PollIntervalInSeconds { get; }
+
         public string ConnectionString { get; }
-
-
 
         /// <summary>
         /// This is the method that runs the actual process
@@ -122,6 +123,9 @@ namespace CDC.Loan
                 case CDCOperation.Delete:
                     var loanDeletedEvent = new LoanDeletedEvent { CorrelationId = Guid.NewGuid().ToString(), LoanId = cdc.LoanId };
 
+                    // publish Event
+                    PublishLoanDeletedEvent?.Invoke(this, new LoanPublishEventArgs<LoanDeletedEvent>(loanDeletedEvent));
+
                     break;
                 case CDCOperation.Insert:
                 case CDCOperation.Upsert:
@@ -137,7 +141,8 @@ namespace CDC.Loan
                         RequestedCloseDate = cdc.RequestedCloseDate
                     };
 
-                    
+                    // publish Event
+                    PublishLoanUpsertEvent?.Invoke(this, new LoanPublishEventArgs<LoanUpsertEvent>(loanUpsertEvent));
 
                     break;
 
@@ -220,5 +225,14 @@ namespace CDC.Loan
             if (isRunning)
                 Stop();
         }
+    }
+
+    public class LoanPublishEventArgs<TEventType> : EventArgs
+    {
+        public LoanPublishEventArgs(TEventType eventType)
+        {
+            EventType = eventType;
+        }
+        public TEventType EventType { get; set; }
     }
 }

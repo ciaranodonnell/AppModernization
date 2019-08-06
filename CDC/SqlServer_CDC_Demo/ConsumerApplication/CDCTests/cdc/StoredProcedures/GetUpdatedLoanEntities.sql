@@ -14,14 +14,14 @@ AS
 	SELECT * 
 	INTO #LoanCDC  
 	FROM cdc.fn_cdc_get_all_changes_dbo_Loan(
-	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Loan')
+	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Loan'))
 	, @MaxLSN, N'all');  
 
 	
 	SELECT * 
 	INTO #ApplicantCDC  
 	FROM cdc.fn_cdc_get_all_changes_dbo_Applicant(
-	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Applicant')
+	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Applicant'))
 	, @MaxLSN, N'all');  
 
 
@@ -29,7 +29,7 @@ AS
 	SELECT * 
 	INTO #LoanApplicantCDC  
 	FROM cdc.fn_cdc_get_all_changes_dbo_LoanApplicant(
-	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Applicant')
+	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Applicant'))
 	, @MaxLSN, N'all');  
 
 
@@ -37,7 +37,7 @@ AS
 	SELECT * 
 	INTO #PropertyCDC  
 	FROM cdc.fn_cdc_get_all_changes_dbo_Property(
-	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Applicant')
+	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Applicant'))
 	, @MaxLSN, N'all');  
 
 
@@ -56,6 +56,11 @@ AS
 	SELECT [__$start_lsn]  FROM #PropertyCDC
 	) lsns ORDER BY [__$start_lsn] ASC
 	
+
+	DROP TABLE #LoanCDC
+	DROP TABLE #ApplicantCDC
+	DROP TABLE #LoanApplicantCDC
+	DROP TABLE #PropertyCDC
 
 	
 
