@@ -1,18 +1,27 @@
-﻿using System;
+﻿using CDC.Messaging.Core.Interfaces;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace CDC.Loan
 {
     public class LoanDataChangeProcessor : IDisposable
     {
+        private bool disposedValue = false; // To detect redundant calls
+        private readonly ILogger logger;
+
         private LoanDataChangeDetector loanDataChangeDetector;
         private LoanDataChangePublisher loanDataChangePublisher;
 
-        public LoanDataChangeProcessor(string connectionString, int pollIntervalInSeconds = 10)
+        public LoanDataChangeProcessor(ILogger logger, ISerializer serializer, string connectionString, int pollIntervalInSeconds = 10)
         {
-            loanDataChangeDetector = new LoanDataChangeDetector(connectionString, pollIntervalInSeconds);
+            if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("message", nameof(connectionString));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            loanDataChangeDetector = new LoanDataChangeDetector(logger, connectionString, pollIntervalInSeconds);
             loanDataChangeDetector.PublishLoanDeletedEvent += LoanChangeDetector_PublishLoanDeletedEvent;
             loanDataChangeDetector.PublishLoanUpsertEvent += LoanChangeDetector_PublishLoanUpsertEvent;
-            loanDataChangePublisher = new LoanDataChangePublisher();
+            loanDataChangePublisher = new LoanDataChangePublisher(logger, serializer, null, null);
+
         }
 
         private void LoanChangeDetector_PublishLoanUpsertEvent(object sender, LoanPublishEventArgs<LoanUpsertEvent> loanUpsertEvent)
@@ -29,13 +38,16 @@ namespace CDC.Loan
         {
             if (loanDataChangeDetector == null) throw new InvalidOperationException($"LoanDataChangeDetector is null.");
             if (loanDataChangePublisher == null) throw new InvalidOperationException($"LoanDataChangePublisher is null.");
+
             loanDataChangeDetector.Start();
         }
 
+        public void Stop()
+        {
+            loanDataChangeDetector.Stop();
+        }
 
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
 
         protected virtual void Dispose(bool disposing)
         {

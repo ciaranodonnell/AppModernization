@@ -1,5 +1,6 @@
 ﻿using CDC.Common;
 using CDCOutboxSender;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,17 +10,22 @@ namespace CDC.Loan
 {
     public class LoanDataChangeDetector : IDisposable
     {
-        private bool isRunning;
-        private Timer timer;
-        private object processingLockObject = new Object();
+        private Thread changeDetectorProcessThread = null;
+        private AutoResetEvent changeDetectionProcessCompletion = new AutoResetEvent(false);
+        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private readonly ILogger logger;
 
         public event EventHandler<LoanPublishEventArgs<LoanDeletedEvent>> PublishLoanDeletedEvent;
         public event EventHandler<LoanPublishEventArgs<LoanUpsertEvent>> PublishLoanUpsertEvent;
 
-        public LoanDataChangeDetector(string connectionString, int pollIntervalInSeconds = 10)
+        public LoanDataChangeDetector(ILogger logger, string connectionString, int pollIntervalInSeconds = 10)
         {
-            this.PollIntervalInSeconds = pollIntervalInSeconds;
+            if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("message", nameof(connectionString));
+
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.ConnectionString = connectionString;
+            this.PollIntervalInSeconds = pollIntervalInSeconds;
+
         }
 
         public int PollIntervalInSeconds { get; }
@@ -31,6 +37,7 @@ namespace CDC.Loan
         /// </summary>
         public void CheckForAndPublishChanges()
         {
+            this.logger.LogInformation($"Running Change Detection on thread: {Thread.CurrentThread.ManagedThreadId}");
 
             Dictionary<string, CDCRecord> allChangeRecords = new Dictionary<string, CDCRecord>();
             List<string> orderedChanges = new List<string>();
@@ -93,10 +100,6 @@ namespace CDC.Loan
                     SendApplicantEvent(applicantCdc);
                 }
             }
-
-
-
-
 
         }
 
@@ -185,22 +188,37 @@ namespace CDC.Loan
         /// </summary>
         public void Start()
         {
-            if (isRunning) throw new InvalidOperationException("You are starting a ChangeDetector that is already running");
+            // if (isRunning) throw new InvalidOperationException("You are starting a ChangeDetector that is already running");
 
-            isRunning = true;
+            new Thread(new ThreadStart(() =>
+            {
+                while (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    changeDetectorProcessThread = new Thread(new ThreadStart(StartChangeDetection));
+                    changeDetectorProcessThread.Start();
 
-            this.timer = new Timer(Timer_Tick, null, 0, PollIntervalInSeconds * 1000);
+                    this.logger.LogInformation($"Now Waiting for Change Detection thread:  {changeDetectorProcessThread.ManagedThreadId}");
+                    changeDetectionProcessCompletion.WaitOne();
+                }
+            })).Start();
 
         }
 
-        void Timer_Tick(object state)
+        private void StartChangeDetection()
         {
-            lock (processingLockObject)
+            try
             {
-                if (isRunning)
-                {
-                    CheckForAndPublishChanges();
-                }
+                CheckForAndPublishChanges();
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"{ex.Message}");
+                throw;
+            }
+            finally
+            {
+                changeDetectionProcessCompletion.Set();
+                this.logger.LogInformation($"Releasing Change Detection Thread: {Thread.CurrentThread.ManagedThreadId}");
             }
         }
 
@@ -210,20 +228,13 @@ namespace CDC.Loan
         /// </summary>
         public void Stop()
         {
-            if (isRunning)
-            {
-                this.timer.Change(Timeout.Infinite, Timeout.Infinite);
-                this.timer.Dispose();
-
-                isRunning = false;
-
-            }
+            if (!cancellationTokenSource.IsCancellationRequested)
+                cancellationTokenSource.Cancel();
         }
 
         public void Dispose()
         {
-            if (isRunning)
-                Stop();
+            Stop();
         }
     }
 
