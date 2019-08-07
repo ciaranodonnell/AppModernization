@@ -63,6 +63,7 @@
     <Folder Include="cdc" />
     <Folder Include="cdc\Tables" />
     <Folder Include="cdc\StoredProcedures" />
+    <Folder Include="cdc\Types" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Loan.sql" />
@@ -71,6 +72,8 @@
     <Build Include="dbo\Tables\Property.sql" />
     <Build Include="cdc\Tables\OutboxPostmarks.sql" />
     <Build Include="cdc\StoredProcedures\GetUpdatedLoanEntities.sql" />
+    <Build Include="cdc\StoredProcedures\StoreOutboxPostmark.sql" />
+    <Build Include="cdc\Types\OutboxPostmarkType.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="cdc\cdc.CreateSchema.sql" />

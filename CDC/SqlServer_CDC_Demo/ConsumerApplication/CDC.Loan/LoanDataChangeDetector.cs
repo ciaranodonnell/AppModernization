@@ -8,27 +8,22 @@ using System.Threading;
 
 namespace CDC.Loan
 {
-    public class LoanDataChangeDetector : IDisposable
+    public class LoanDataChangeDetector 
     {
-        private readonly AutoResetEvent changeDetectionProcessCompletion = new AutoResetEvent(false);
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private readonly ILogger logger;
 
         public event EventHandler<LoanPublishEventArgs<LoanDeletedEvent>> PublishLoanDeletedEvent;
         public event EventHandler<LoanPublishEventArgs<LoanUpsertEvent>> PublishLoanUpsertEvent;
 
-        public LoanDataChangeDetector(ILogger logger, string connectionString, int pollIntervalInSeconds = 10)
+        public LoanDataChangeDetector(ILogger logger, string connectionString)
         {
             if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("message", nameof(connectionString));
 
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.ConnectionString = connectionString;
-            this.PollIntervalInSeconds = pollIntervalInSeconds;
 
         }
-
-        public int PollIntervalInSeconds { get; }
-
+        
         public string ConnectionString { get; }
 
         /// <summary>
@@ -78,6 +73,16 @@ namespace CDC.Loan
 
             });
 
+            DataTable sentMessages = new DataTable()
+            {
+                Columns = {
+                    new DataColumn("StartLSN", typeof(byte[])),
+                    new DataColumn("EventType", typeof(string)),
+                    new DataColumn("EventTopic", typeof(string)),
+                    new DataColumn("EventSentUTC", typeof(DateTimeOffset))
+                }
+            };
+
             foreach (var lsn in orderedChanges)
             {
                 CDCRecord record = allChangeRecords[lsn];
@@ -85,20 +90,28 @@ namespace CDC.Loan
                 if (record is LoanCDCRecord loancdc)
                 {
                     SendLoanEvent(loancdc);
+                    sentMessages.Rows.Add(record.StartLSN, "Loan", null, DateTimeOffset.UtcNow);
                 }
                 else if (record is LoanApplicantCDCRecord loanapplicantcdc)
                 {
                     SendLoanApplicantEvent(loanapplicantcdc);
+                    sentMessages.Rows.Add(record.StartLSN, "LoanApplicant", null, DateTimeOffset.UtcNow);
                 }
                 else if (record is PropertyCDCRecord propertyCdc)
                 {
                     SendPropertyEvent(propertyCdc);
+                    sentMessages.Rows.Add(record.StartLSN, "Property", null, DateTimeOffset.UtcNow);
                 }
                 else if (record is ApplicantCDCRecord applicantCdc)
                 {
                     SendApplicantEvent(applicantCdc);
+                    sentMessages.Rows.Add(record.StartLSN, "Applicant", null, DateTimeOffset.UtcNow);
                 }
             }
+
+            //Store the record in outbox postmarks
+            RunStoredProcedure("StoreOutboxPostmark", ConnectionString, null, new Dictionary<string, object> { { "@postmarks", sentMessages } });
+
 
         }
 
@@ -144,7 +157,8 @@ namespace CDC.Loan
                     };
 
                     // publish Event
-                    PublishLoanUpsertEvent?.Invoke(this, new LoanPublishEventArgs<LoanUpsertEvent>(loanUpsertEvent));
+                    var args = new LoanPublishEventArgs<LoanUpsertEvent>(loanUpsertEvent);
+                    PublishLoanUpsertEvent?.Invoke(this, args);
 
                     break;
 
@@ -152,13 +166,14 @@ namespace CDC.Loan
             }
         }
 
+
         /// <summary>
         /// Function to hide the details about running an SP
         /// </summary>
         /// <param name="procedureName">the name of the SP to run</param>
         /// <param name="connectionString">a connection string to the SQL Server database</param>
         /// <param name="loadDataAction">a function to call that will extract the data from the reader. The data items will likely be in a closure for this to work</param>
-        private void RunStoredProcedure(string procedureName, string connectionString, Action<IDataReader> loadDataAction)
+        private void RunStoredProcedure(string procedureName, string connectionString, Action<IDataReader> loadDataAction, Dictionary<string, object> parameters = null)
         {
             try
             {
@@ -167,10 +182,28 @@ namespace CDC.Loan
                 {
                     command.CommandText = procedureName;
                     command.CommandType = CommandType.StoredProcedure;
-                    connection.Open();
-                    var reader = command.ExecuteReader();
 
-                    loadDataAction(reader);
+                    if (parameters != null)
+                    {
+                        foreach (var p in parameters)
+                        {
+                            command.Parameters.AddWithValue(p.Key, p.Value);
+                        }
+                    }
+
+
+                    connection.Open();
+
+                    if (loadDataAction != null)
+                    {
+                        var reader = command.ExecuteReader();
+
+                        loadDataAction(reader);
+                    }
+                    else
+                    {
+                        command.ExecuteNonQuery();
+                    }
 
                 }
             }
@@ -182,63 +215,7 @@ namespace CDC.Loan
         }
 
 
-        /// <summary>
-        /// Start the process checking for changes periodically
-        /// </summary>
-        public void Start()
-        {
-            //TODO: Revisit to make sure only one instance runs...may be make the hosting thread static instance
-            // if (isRunning) throw new InvalidOperationException("You are starting a ChangeDetector that is already running");
 
-            new Thread(new ThreadStart(() =>
-            {
-                while (!cancellationTokenSource.IsCancellationRequested)
-                {
-                    var changeDetectorProcessThread = new Thread(new ThreadStart(StartChangeDetection));
-                    changeDetectorProcessThread.Start();
-
-                    this.logger.LogInformation($"Now Waiting for Change Detection thread:  {changeDetectorProcessThread.ManagedThreadId}");
-                    changeDetectionProcessCompletion.WaitOne();
-                }
-            })).Start();
-
-        }
-
-        private void StartChangeDetection()
-        {
-            try
-            {
-                CheckForAndPublishChanges();
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError($"{ex.Message}");
-                throw;
-            }
-            finally
-            {
-                changeDetectionProcessCompletion.Set();
-                this.logger.LogInformation($"Releasing Change Detection Thread: {Thread.CurrentThread.ManagedThreadId}");
-            }
-        }
-
-
-        /// <summary>
-        /// Stop the process from running periodically
-        /// </summary>
-        public void Stop()
-        {
-            if (!cancellationTokenSource.IsCancellationRequested)
-                cancellationTokenSource.Cancel();
-        }
-
-        public void Dispose()
-        {
-            Stop();
-
-            changeDetectionProcessCompletion?.Dispose();
-            cancellationTokenSource?.Dispose();
-        }
     }
 
     public class LoanPublishEventArgs<TEventType> : EventArgs
@@ -248,5 +225,7 @@ namespace CDC.Loan
             EventType = eventType;
         }
         public TEventType EventType { get; set; }
+
+        public bool EventPublishedSuccessfully { get; set; }
     }
 }
