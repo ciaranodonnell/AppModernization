@@ -10,8 +10,7 @@ namespace CDC.Loan
 {
     public class LoanDataChangeDetector : IDisposable
     {
-        private Thread changeDetectorProcessThread = null;
-        private AutoResetEvent changeDetectionProcessCompletion = new AutoResetEvent(false);
+        private readonly AutoResetEvent changeDetectionProcessCompletion = new AutoResetEvent(false);
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private readonly ILogger logger;
 
@@ -188,13 +187,14 @@ namespace CDC.Loan
         /// </summary>
         public void Start()
         {
+            //TODO: Revisit to make sure only one instance runs...may be make the hosting thread static instance
             // if (isRunning) throw new InvalidOperationException("You are starting a ChangeDetector that is already running");
 
             new Thread(new ThreadStart(() =>
             {
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
-                    changeDetectorProcessThread = new Thread(new ThreadStart(StartChangeDetection));
+                    var changeDetectorProcessThread = new Thread(new ThreadStart(StartChangeDetection));
                     changeDetectorProcessThread.Start();
 
                     this.logger.LogInformation($"Now Waiting for Change Detection thread:  {changeDetectorProcessThread.ManagedThreadId}");
@@ -235,6 +235,9 @@ namespace CDC.Loan
         public void Dispose()
         {
             Stop();
+
+            changeDetectionProcessCompletion?.Dispose();
+            cancellationTokenSource?.Dispose();
         }
     }
 
