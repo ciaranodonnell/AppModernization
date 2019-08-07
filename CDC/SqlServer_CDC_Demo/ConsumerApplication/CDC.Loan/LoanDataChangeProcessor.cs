@@ -110,7 +110,8 @@ namespace CDC.Loan
                     loanDataChangeDetector.PublishLoanUpsertEvent -= LoanChangeDetector_PublishLoanUpsertEvent;
 
                     loanDataChangeDetector = null;
-                    loanDataChangePublisher = null;
+                    loanDataChangePublisher.Dispose();
+                    changeDetectionProcessCompletion.Dispose();
                 }
 
                 disposedValue = true;
