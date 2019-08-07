@@ -47,14 +47,14 @@ AS
 	ISNULL(@MinLSN, sys.fn_cdc_get_min_lsn('dbo_Property'))
 	, @MaxLSN, N'all');  
 
-	/*if minlsn is inclusive delete it from our temp tables
+	--if minlsn is inclusive delete it from our temp tables
 
 	delete from #propertyCDC where [__$start_lsn]= @MinLSN
 	delete from #loanapplicantCDC where [__$start_lsn]= @MinLSN
 	delete from #applicantCDC where [__$start_lsn]= @MinLSN
 	delete from #loanCDC where [__$start_lsn]= @MinLSN
 
-	*/
+
 	
 	INSERT INTO cdc.OutboxPostmarks 
 	(ActualLSN,  EventBatchDate) 

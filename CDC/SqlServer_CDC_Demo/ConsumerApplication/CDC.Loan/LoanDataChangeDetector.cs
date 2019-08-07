@@ -108,7 +108,8 @@ namespace CDC.Loan
             }
 
             //Store the record in outbox postmarks
-            RunStoredProcedure("cdc.StoreOutboxPostmark", ConnectionString, null, new Dictionary<string, object> { { "@postmarks", sentMessages } });
+            if (sentMessages.Rows.Count > 0)
+                RunStoredProcedure("cdc.StoreOutboxPostmark", ConnectionString, null, new Dictionary<string, object> { { "@postmarks", sentMessages } });
 
 
         }
