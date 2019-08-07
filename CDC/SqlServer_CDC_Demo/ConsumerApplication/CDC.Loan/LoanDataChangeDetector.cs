@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace CDC.Loan
 {
-    public class LoanDataChangeDetector 
+    public class LoanDataChangeDetector
     {
         private readonly ILogger logger;
 
@@ -23,7 +23,7 @@ namespace CDC.Loan
             this.ConnectionString = connectionString;
 
         }
-        
+
         public string ConnectionString { get; }
 
         /// <summary>
@@ -90,22 +90,22 @@ namespace CDC.Loan
                 if (record is LoanCDCRecord loancdc)
                 {
                     SendLoanEvent(loancdc);
-                    sentMessages.Rows.Add(record.StartLSN, "Loan", null, DateTimeOffset.UtcNow);
+                    sentMessages.Rows.Add(record.ChangeId, DateTimeOffset.UtcNow);
                 }
                 else if (record is LoanApplicantCDCRecord loanapplicantcdc)
                 {
                     SendLoanApplicantEvent(loanapplicantcdc);
-                    sentMessages.Rows.Add(record.StartLSN, "LoanApplicant", null, DateTimeOffset.UtcNow);
+                    sentMessages.Rows.Add(record.ChangeId, DateTimeOffset.UtcNow);
                 }
                 else if (record is PropertyCDCRecord propertyCdc)
                 {
                     SendPropertyEvent(propertyCdc);
-                    sentMessages.Rows.Add(record.StartLSN, "Property", null, DateTimeOffset.UtcNow);
+                    sentMessages.Rows.Add(record.ChangeId, DateTimeOffset.UtcNow);
                 }
                 else if (record is ApplicantCDCRecord applicantCdc)
                 {
                     SendApplicantEvent(applicantCdc);
-                    sentMessages.Rows.Add(record.StartLSN, "Applicant", null, DateTimeOffset.UtcNow);
+                    sentMessages.Rows.Add(record.ChangeId, DateTimeOffset.UtcNow);
                 }
             }
 
@@ -136,7 +136,7 @@ namespace CDC.Loan
             switch (cdc.Operation)
             {
                 case CDCOperation.Delete:
-                    var loanDeletedEvent = new LoanDeletedEvent { CorrelationId = Guid.NewGuid().ToString(), LoanId = cdc.LoanId };
+                    var loanDeletedEvent = new LoanDeletedEvent { CorrelationId = Guid.NewGuid().ToString(), LoanId = cdc.LoanId, ChangeId = cdc.ChangeId };
 
                     // publish Event
                     PublishLoanDeletedEvent?.Invoke(this, new LoanPublishEventArgs<LoanDeletedEvent>(loanDeletedEvent));
@@ -151,9 +151,11 @@ namespace CDC.Loan
                         CorrelationId = Guid.NewGuid().ToString(),
                         LoanId = cdc.LoanId,
                         AmountInPennies = cdc.AmountInPennies,
+                        //getting UtcNow repeatedly means the time will be going up. we may want to get it from the EventBatchDate in the DB
                         EventDateTime = DateTime.UtcNow,
                         PropertyId = cdc.PropertyId,
-                        RequestedCloseDate = cdc.RequestedCloseDate
+                        RequestedCloseDate = cdc.RequestedCloseDate,
+                        ChangeId = cdc.ChangeId
                     };
 
                     // publish Event
@@ -187,7 +189,8 @@ namespace CDC.Loan
                     {
                         foreach (var p in parameters)
                         {
-                            command.Parameters.AddWithValue(p.Key, p.Value);
+                            var param = command.Parameters.AddWithValue(p.Key, p.Value);
+                            if (p.Value is DataTable) param.SqlDbType = SqlDbType.Structured;
                         }
                     }
 

@@ -3,5 +3,6 @@
     public class LoanDeletedEvent : BaseEvent
     {
         public int LoanId { get; set; }
+        
     }
 }

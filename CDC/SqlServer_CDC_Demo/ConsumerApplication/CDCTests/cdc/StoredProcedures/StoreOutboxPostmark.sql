@@ -15,8 +15,9 @@ AS
 );
 */
 
-	INSERT INTO OutboxPostmarks ([ActualLSN], [EventType], [EventTopic], [EventSentUTC])
-	SELECT StartLSN, [EventType], [EventTopic], [EventSentUTC] from @postmarks
+	UPDATE OutboxPostmarks  
+	SET EventSentUTC = P.[EventSentUTC] 
+	FROM OutboxPostmarks o  JOIN @postmarks p on p.ChangeId = o.ChangeId
 
 
 RETURN 0

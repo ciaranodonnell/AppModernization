@@ -11,5 +11,6 @@ namespace CDC.Loan
 
         public string CorrelationId { get; set; }
 
+        public long ChangeId { get; set; }
     }
 }
