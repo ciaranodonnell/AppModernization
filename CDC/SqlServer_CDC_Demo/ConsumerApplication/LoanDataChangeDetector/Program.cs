@@ -3,6 +3,7 @@ using CDC.Messaging.Core.Interfaces;
 using CDC.Messaging.Core.Serializers;
 using CDCOutboxSender.Options;
 using CommandLine;
+using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -28,7 +29,7 @@ namespace CDCOutboxSender
             {
                 Console.WriteLine("Starting...");
 
-                var loanDataChangeProcessor = new LoanDataChangeProcessor(logger, serializer, options.DatabaseConnectionString, options.PollIntervalSeconds);
+                var loanDataChangeProcessor = new LoanDataChangeProcessor(logger, serializer, GetProducerConfig(), GetSubscriberConfig(), options.DatabaseConnectionString, options.PollIntervalSeconds);
 
                 loanDataChangeProcessor.Start();
 
@@ -46,6 +47,30 @@ namespace CDCOutboxSender
 
 
 
+        }
+
+        private static ProducerConfig GetProducerConfig()
+        {
+            var producerConfig = new ProducerConfig
+            {
+                BootstrapServers = "127.0.0.1:9092",
+            };
+            return producerConfig;
+        }
+
+        private static ConsumerConfig GetSubscriberConfig()
+        {
+            var config = new ConsumerConfig
+            {
+                BootstrapServers = "127.0.0.1:9092",
+                GroupId = "LoanGroup-1",
+                EnableAutoCommit = false,
+                StatisticsIntervalMs = 5000,
+                SessionTimeoutMs = 6000,
+                AutoOffsetReset = AutoOffsetReset.Earliest,
+                EnablePartitionEof = true
+            };
+            return config;
         }
 
     }

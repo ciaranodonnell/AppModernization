@@ -1,4 +1,5 @@
 ﻿using CDC.Messaging.Core.Interfaces;
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -20,7 +21,7 @@ namespace CDC.Loan
 
         public int PollIntervalInSeconds { get; private set; }
 
-        public LoanDataChangeProcessor(ILogger logger, ISerializer serializer, string connectionString, int pollIntervalInSeconds = 10)
+        public LoanDataChangeProcessor(ILogger logger, ISerializer serializer, ProducerConfig producerConfig, ConsumerConfig consumerConfig, string connectionString, int pollIntervalInSeconds = 10)
         {
             if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("message", nameof(connectionString));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -28,7 +29,7 @@ namespace CDC.Loan
             loanDataChangeDetector = new LoanDataChangeDetector(logger, connectionString);
             loanDataChangeDetector.PublishLoanDeletedEvent += LoanChangeDetector_PublishLoanDeletedEvent;
             loanDataChangeDetector.PublishLoanUpsertEvent += LoanChangeDetector_PublishLoanUpsertEvent;
-            loanDataChangePublisher = new LoanDataChangePublisher(logger, serializer, null, null);
+            loanDataChangePublisher = new LoanDataChangePublisher(logger, serializer, producerConfig, consumerConfig);
 
 
             this.PollIntervalInSeconds = pollIntervalInSeconds;
@@ -36,12 +37,12 @@ namespace CDC.Loan
 
         private void LoanChangeDetector_PublishLoanUpsertEvent(object sender, LoanPublishEventArgs<LoanUpsertEvent> loanUpsertEvent)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         private void LoanChangeDetector_PublishLoanDeletedEvent(object sender, LoanPublishEventArgs<LoanDeletedEvent> loanDeletedEvent)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         public void Start()
@@ -81,7 +82,7 @@ namespace CDC.Loan
             }
             finally
             {
-               //TODO: Move this to try body and decide what to do with the process when there is an unhandled exception
+                //TODO: Move this to try body and decide what to do with the process when there is an unhandled exception
                 changeDetectionProcessCompletion.Set();
                 this.logger.LogInformation($"Releasing Change Detection Thread: {Thread.CurrentThread.ManagedThreadId}");
             }

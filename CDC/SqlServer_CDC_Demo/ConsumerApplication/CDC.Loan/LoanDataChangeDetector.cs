@@ -76,9 +76,7 @@ namespace CDC.Loan
             DataTable sentMessages = new DataTable()
             {
                 Columns = {
-                    new DataColumn("StartLSN", typeof(byte[])),
-                    new DataColumn("EventType", typeof(string)),
-                    new DataColumn("EventTopic", typeof(string)),
+                    new DataColumn("ChangeId", typeof(Int64)),
                     new DataColumn("EventSentUTC", typeof(DateTimeOffset))
                 }
             };
@@ -110,7 +108,7 @@ namespace CDC.Loan
             }
 
             //Store the record in outbox postmarks
-            RunStoredProcedure("StoreOutboxPostmark", ConnectionString, null, new Dictionary<string, object> { { "@postmarks", sentMessages } });
+            RunStoredProcedure("cdc.StoreOutboxPostmark", ConnectionString, null, new Dictionary<string, object> { { "@postmarks", sentMessages } });
 
 
         }
