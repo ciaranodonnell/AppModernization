@@ -74,6 +74,7 @@
     <Build Include="cdc\StoredProcedures\GetUpdatedLoanEntities.sql" />
     <Build Include="cdc\StoredProcedures\StoreOutboxPostmark.sql" />
     <Build Include="cdc\Types\OutboxPostmarkType.sql" />
+    <Build Include="cdc\StoredProcedures\GetLoanNetChanges.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="cdc\cdc.CreateSchema.sql" />

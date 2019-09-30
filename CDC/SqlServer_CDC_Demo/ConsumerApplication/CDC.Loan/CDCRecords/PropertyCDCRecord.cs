@@ -1,9 +1,9 @@
-﻿using CDCOutboxSender;
+﻿
 using System.Data;
 
 namespace CDC.Loan
 {
-    public class PropertyCDCRecord : CDCRecord
+    public class PropertyCDCRecord : OutboxedCDCRecord
     {
         public PropertyCDCRecord()
         {

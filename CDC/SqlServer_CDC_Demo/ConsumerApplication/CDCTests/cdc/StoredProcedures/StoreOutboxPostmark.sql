@@ -1,7 +1,7 @@
 ﻿
 
 CREATE PROCEDURE [cdc].[StoreOutboxPostmark]
-	@postmarks cdc.OutboxPostmarkType READONLY
+	@postmarks cdc.OutboxType READONLY
 AS
 
 
@@ -15,7 +15,7 @@ AS
 );
 */
 
-	UPDATE OutboxPostmarks  
+	UPDATE Outbox
 	SET EventSentUTC = P.[EventSentUTC] 
 	FROM OutboxPostmarks o  JOIN @postmarks p on p.ChangeId = o.ChangeId
 

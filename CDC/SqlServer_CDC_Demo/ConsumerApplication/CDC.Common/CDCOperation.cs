@@ -1,4 +1,4 @@
-﻿namespace CDCOutboxSender
+﻿namespace CDC.Common
 {
     /// <summary>
     /// An enum to represent the meaning of the __$operation field in the SQL Server CDC tables

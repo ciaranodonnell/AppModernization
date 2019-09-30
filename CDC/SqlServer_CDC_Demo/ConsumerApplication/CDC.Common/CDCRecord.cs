@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace CDCOutboxSender
+namespace CDC.Common
 {
     public class CDCRecord
     {
@@ -9,7 +9,6 @@ namespace CDCOutboxSender
         private const string SeqValFieldName = "__$seqval";
         private const string OperationFieldName = "__$operation";
         private const string UpdateMaskFieldName = "__$update_mask";
-        private const string ChangeIdFieldName = "ChangeId";
 
 
         public CDCRecord()
@@ -30,7 +29,7 @@ namespace CDCOutboxSender
             this.LSNString = Convert.ToBase64String(this.StartLSN);
             this.Operation = (CDCOperation)reader.GetInt32(reader.GetOrdinal(OperationFieldName));
             this.UpdateMask = (byte[])reader.GetValue(reader.GetOrdinal(UpdateMaskFieldName));
-            this.ChangeId = reader.GetInt64(reader.GetOrdinal(ChangeIdFieldName)); 
+            
 
             //The seqval column is not there in net results but that can be OK.
             this.SeqVal = ExtractValueFromReaderIfPresent<object>(reader, SeqValFieldName);
@@ -56,7 +55,6 @@ namespace CDCOutboxSender
         public byte[] StartLSN { get; private set; }
         public CDCOperation Operation { get; private set; }
         public byte[] UpdateMask { get; private set; }
-        public long ChangeId { get; private set; }
         public object SeqVal { get; private set; }
     }
 }

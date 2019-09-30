@@ -1,5 +1,5 @@
 ﻿using CDC.Common;
-using CDCOutboxSender;
+
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

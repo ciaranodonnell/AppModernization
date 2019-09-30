@@ -1,4 +1,4 @@
-﻿using CDCOutboxSender;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,7 +6,7 @@ using System.Text;
 
 namespace CDC.Loan
 {
-    public class LoanCDCRecord : CDCRecord
+    public class LoanCDCRecord : OutboxedCDCRecord
     {
 
         public LoanCDCRecord()

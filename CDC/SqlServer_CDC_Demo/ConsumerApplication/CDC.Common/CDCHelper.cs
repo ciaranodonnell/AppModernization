@@ -7,7 +7,7 @@ namespace CDC.Common
     public class CDCHelper
     {
 
-        public static SqlConnection GetConnection(string connectionString)
+        public static SqlConnection GetConnection   (string connectionString)
         {
             return new SqlConnection(connectionString);
         }

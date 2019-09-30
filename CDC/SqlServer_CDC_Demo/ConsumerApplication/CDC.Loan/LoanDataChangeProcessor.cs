@@ -11,15 +11,17 @@ namespace CDC.Loan
         private bool disposedValue = false; // To detect redundant calls
         private readonly ILogger logger;
 
-        private readonly AutoResetEvent changeDetectionProcessCompletion = new AutoResetEvent(false);
+        private readonly AutoResetEvent changeDetectionProcessWaitHandle = new AutoResetEvent(false);
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
 
         private LoanDataChangeDetector loanDataChangeDetector;
         private LoanDataChangePublisher loanDataChangePublisher;
+        private System.Timers.Timer timer;
         private Thread processingThread;
+        private bool isRunning = false;
 
-        public int PollIntervalInSeconds { get; private set; }
+        public int PollIntervalInSeconds { get; set; }
 
         public LoanDataChangeProcessor(ILogger logger, ISerializer serializer, ProducerConfig producerConfig, ConsumerConfig consumerConfig, string connectionString, int pollIntervalInSeconds = 10)
         {
@@ -31,8 +33,13 @@ namespace CDC.Loan
             loanDataChangeDetector.PublishLoanUpsertEvent += LoanChangeDetector_PublishLoanUpsertEvent;
             loanDataChangePublisher = new LoanDataChangePublisher(logger, serializer, producerConfig, consumerConfig);
 
+            timer = new System.Timers.Timer(PollIntervalInSeconds * 1000);
+            timer.AutoReset = true;
+            timer.Elapsed += Timer_Tick;
 
             this.PollIntervalInSeconds = pollIntervalInSeconds;
+
+
         }
 
         private void LoanChangeDetector_PublishLoanUpsertEvent(object sender, LoanPublishEventArgs<LoanUpsertEvent> loanUpsertEvent)
@@ -51,40 +58,48 @@ namespace CDC.Loan
             if (loanDataChangePublisher == null) throw new InvalidOperationException($"LoanDataChangePublisher is null.");
 
             //TODO: Revisit to make sure only one instance runs...may be make the hosting thread static instance
-            // if (isRunning) throw new InvalidOperationException("You are starting a ChangeDetector that is already running");
-
-            this.processingThread = new Thread(new ThreadStart(() =>
+            if (isRunning) throw new InvalidOperationException("You are starting a ChangeDetector that is already running");
+            lock (this)
             {
-                while (!cancellationTokenSource.IsCancellationRequested)
+                //Double check locking 
+                if (isRunning) throw new InvalidOperationException("You are starting a ChangeDetector that is already running");
+
+                isRunning = true;
+
+                //Set the interval again in case it changed since creation
+                timer.Interval = PollIntervalInSeconds * 1000;
+                timer.Start();
+
+
+                this.processingThread = new Thread(new ThreadStart(() =>
                 {
-                    var changeDetectorProcessThread = new Thread(new ThreadStart(StartChangeDetection));
-                    changeDetectorProcessThread.Start();
-
-                    this.logger.LogInformation($"Now Waiting for Change Detection thread:  {changeDetectorProcessThread.ManagedThreadId}");
-                    changeDetectionProcessCompletion.WaitOne();
-                }
-            }));
-            processingThread.Start();
-
+                    while (!cancellationTokenSource.IsCancellationRequested)
+                    {
+                        changeDetectionProcessWaitHandle.WaitOne();
+                        StartChangeDetection();
+                    }
+                }));
+                processingThread.Start();
+            }
         }
 
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            changeDetectionProcessWaitHandle.Set();
+        }
 
         private void StartChangeDetection()
         {
             try
             {
                 loanDataChangeDetector.CheckForAndPublishChanges();
+                this.logger.LogInformation($"Releasing Change Detection Thread: {Thread.CurrentThread.ManagedThreadId}");
             }
             catch (Exception ex)
             {
                 this.logger.LogError($"{ex.Message}");
+                //Should we swallow and carry on
                 throw;
-            }
-            finally
-            {
-                //TODO: Move this to try body and decide what to do with the process when there is an unhandled exception
-                changeDetectionProcessCompletion.Set();
-                this.logger.LogInformation($"Releasing Change Detection Thread: {Thread.CurrentThread.ManagedThreadId}");
             }
         }
 
@@ -92,6 +107,9 @@ namespace CDC.Loan
         /// </summary>
         public void Stop()
         {
+            isRunning = false;
+            timer.Stop();
+
             if (!cancellationTokenSource.IsCancellationRequested)
                 cancellationTokenSource.Cancel();
         }
@@ -111,7 +129,7 @@ namespace CDC.Loan
 
                     loanDataChangeDetector = null;
                     loanDataChangePublisher.Dispose();
-                    changeDetectionProcessCompletion.Dispose();
+                    changeDetectionProcessWaitHandle.Dispose();
                 }
 
                 disposedValue = true;
