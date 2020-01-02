@@ -1,0 +1,15 @@
+﻿CREATE TABLE [dbo].[Address]
+(
+	[Id] INT NOT NULL PRIMARY KEY,
+	Address1 VARCHAR(500),
+	Address2 VARCHAR(500),
+	Address3 VARCHAR(500),
+	TownCity VARCHAR(200),
+	County VARCHAR(200),
+	CountryCode VARCHAR(2),
+	PostalZipCode VARCHAR(20),
+	Version INT NOT NULL DEFAULT 1, 
+    [CreatedDate] DATETIMEOFFSET NOT NULL DEFAULT GETUTCDATE(), 
+    [LastUpdatedDate] DATETIMEOFFSET NOT NULL, 
+    [LastUpdatedByUser] VARCHAR(50) NULL
+)

@@ -1,0 +1,11 @@
+﻿CREATE TABLE [dbo].[Customer]
+(
+	[Id] INT NOT NULL PRIMARY KEY,
+	[Name] VARCHAR(500) NOT NULL,
+	[RegisteredAddressId] INT NOT NULL,
+	IndustryId INT NULL,
+	Version INT NOT NULL DEFAULT 1, 
+    [CreatedDate] DATETIMEOFFSET NOT NULL DEFAULT GETUTCDATE(), 
+    [LastUpdatedDate] DATETIMEOFFSET NOT NULL, 
+    [LastUpdatedByUser] VARCHAR(50) NULL
+)
