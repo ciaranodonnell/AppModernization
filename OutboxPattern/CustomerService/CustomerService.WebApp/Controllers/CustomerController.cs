@@ -23,31 +23,32 @@ namespace CustomerService.WebApp.Controllers
         }
 
         [HttpPost]
-public ActionResult SaveCustomer(CreateCustomerViewModel customer)
-{
-    try
-    {
-        Customer newCustomer = new Customer
+        public ActionResult SaveCustomer(CreateCustomerViewModel customer)
         {
-            Name = customer.Name,
-            RegisteredAddress = new Address { Address1 = customer.Address1, PostalCode = customer.PostalCode },
-            Contacts = new List<Contact>() { new Contact { Name = customer.MainContact } }
-        };
+            try
+            {
+                Customer newCustomer = new Customer
+                {
+                    Name = customer.Name,
+                    RegisteredAddress = new Address { Address1 = customer.Address1, PostalCode = customer.PostalCode },
+                    Contacts = new List<Contact>() { new Contact { Name = customer.MainContact } }
+                };
 
-        _customerRepository.InsertNewCustomer(newCustomer);
+                _customerRepository.InsertNewCustomer(newCustomer);
 
-        _messageBroker.SendMessage(new NewCustomerCreatedEvent
-        {
-            NewCustomer = newCustomer,
-            CorrelationId = Guid.NewGuid()
-        });
+                _messageBroker.SendMessage(new NewCustomerCreatedEvent
+                {
+                    NewCustomer = newCustomer,
+                    CorrelationId = Guid.NewGuid()
+                });
 
-        return Ok(newCustomer);
+                return Ok(newCustomer);
 
-    }
-    catch (Exception ex)
-    {
-        return Redirect("Error.html");
+            }
+            catch (Exception ex)
+            {
+                return Redirect("Error.html");
+            }
+        }
     }
 }
-    }
