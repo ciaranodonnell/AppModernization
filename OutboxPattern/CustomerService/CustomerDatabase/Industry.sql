@@ -1,0 +1,9 @@
+﻿CREATE TABLE [dbo].[Industry]
+(
+	[Id] INT NOT NULL PRIMARY KEY,
+	Description VARCHAR(200),
+	Version INT NOT NULL DEFAULT 1, 
+    [CreatedDate] DATETIMEOFFSET NOT NULL DEFAULT GETUTCDATE(), 
+    [LastUpdatedDate] DATETIMEOFFSET NOT NULL, 
+    [LastUpdatedByUser] VARCHAR(50) NULL
+)
