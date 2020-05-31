@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Messaging.Interfaces;
+using System;
 
 namespace Common.Messaging
 {
@@ -7,7 +8,9 @@ namespace Common.Messaging
 
 		void SendAMessage<TMessage>(string topic, TMessage message);
 
-		ISubscription<TMessage> SubscribeToMessages<TMessage>(string topic);
+		IMessageSender<TMessage> GetMessageSender<TMessage>(string topic, IMessageSerializer serializer);
+		
+		IMessageReceiver<TMessage> SubscribeToMessages<TMessage>(string topic);
 
 
 
