@@ -35,6 +35,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalDecoupling.Experienc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalDecoupling.Experience.Blazor.Shared", "Experience\DigitalDecoupling.Experience.Blazor\Shared\DigitalDecoupling.Experience.Blazor.Shared.csproj", "{19733A96-F7D6-495D-BCFA-53B707A84DBF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Docs", ".Docs", "{1EAF4A75-75EC-4EC6-A1F2-FF18B3ED99A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docs", "Docs\Docs.csproj", "{154B35F4-0EE9-4ED4-89AB-EC89DED1CBF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +91,10 @@ Global
 		{19733A96-F7D6-495D-BCFA-53B707A84DBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19733A96-F7D6-495D-BCFA-53B707A84DBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19733A96-F7D6-495D-BCFA-53B707A84DBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{154B35F4-0EE9-4ED4-89AB-EC89DED1CBF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{154B35F4-0EE9-4ED4-89AB-EC89DED1CBF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{154B35F4-0EE9-4ED4-89AB-EC89DED1CBF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{154B35F4-0EE9-4ED4-89AB-EC89DED1CBF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +111,7 @@ Global
 		{D96E4FD7-B471-42E3-B145-DDCBCF7334C4} = {74D956B9-8371-4349-A7E2-EBD2DBB69329}
 		{40B7E004-9AB5-4E71-9FB3-D8A149071DA9} = {74D956B9-8371-4349-A7E2-EBD2DBB69329}
 		{19733A96-F7D6-495D-BCFA-53B707A84DBF} = {74D956B9-8371-4349-A7E2-EBD2DBB69329}
+		{154B35F4-0EE9-4ED4-89AB-EC89DED1CBF6} = {1EAF4A75-75EC-4EC6-A1F2-FF18B3ED99A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5841D9A7-AEFD-4158-B319-B47551CB15CE}
