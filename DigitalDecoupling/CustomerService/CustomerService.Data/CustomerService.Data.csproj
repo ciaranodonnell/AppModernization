@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CustomerService.Data.Interfaces\CustomerService.Data.Interfaces.csproj" />
+    <ProjectReference Include="..\CustomerService.Model\CustomerService.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
